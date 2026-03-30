@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đặt Vé Của Tôi - CINEMA</title>
+    <th:block th:replace="~{fragments/user-head :: userStyles}"></th:block>
+    <style>
+        .bookings-page {
+            padding: 140px 0 60px;
+            min-height: 100vh;
+        }
+
+        .booking-card {
+            background: var(--gunmetal-1);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 25px;
+            transition: var(--transition-2);
+            animation: fadeInUp 0.5s ease forwards;
+        }
+
+        .booking-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.4);
+        }
+
+        .booking-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .booking-id {
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--white);
+        }
+
+        .movie-poster {
+            width: 80px;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 12px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+        }
+
+        .empty-state ion-icon {
+            font-size: 100px;
+            color: var(--gray-x);
+            margin-bottom: 20px;
+        }
+
+        .empty-state h3 {
+            color: var(--gainsboro);
+            margin-bottom: 10px;
+        }
+
+        .empty-state p {
+            color: var(--gray-x);
+            margin-bottom: 25px;
+        }
+    </style>
+</head>
+<body id="top">
+
+    <th:block th:replace="~{fragments/user-layout :: userHeader}"></th:block>
+
+    <main>
+        <article>
+            <section class="bookings-page">
+                <div class="container">
+                    <h1 class="h2 mb-4" style="color: var(--white);">
+                        <ion-icon name="ticket" style="color: var(--citrine);"></ion-icon>
+                        Đặt Vé Của Tôi
+                    </h1>
+
+                    <!-- Alert for expired bookings -->
+                    <div th:if="${param.expired != null}" class="alert" style="background: rgba(241, 196, 15, 0.2); border: 1px solid rgba(241, 196, 15, 0.5); color: #f1c40f; border-radius: 12px; padding: 15px 20px; margin-bottom: 25px;">
+                        <ion-icon name="warning"></ion-icon>
+                        Một số vé đã hết hạn thanh toán và được chuyển sang trạng thái <strong>Đã hủy</strong>.
+                    </div>
+
+                    <!-- Empty State -->
+                    <div th:if="${#lists.isEmpty(bookings)}" class="empty-state">
+                        <ion-icon name="ticket-outline"></ion-icon>
+                        <h3>Bạn chưa có đặt vé nào</h3>
+                        <p>Hãy đặt vé để trải nghiệm những bộ phim hay nhất!</p>
+                        <a th:href="@{/movies}" class="btn btn-primary">
+                            <ion-icon name="film"></ion-icon>
+                            Xem Phim Ngay
+                        </a>
+                    </div>
+
+                    <!-- Bookings List -->
+                    <div th:each="booking : ${bookings}" class="booking-card">
+                        <div class="booking-header">
+                            <div>
+                                <span class="booking-id">Mã Vé: <span th:text="${booking.ticketCode}">CINEMA-123</span></span>
+                            </div>
+                            <span class="badge" 
+                                  th:classappend="${booking.status.name() == 'PAID'} ? 'badge-success' : (${booking.status.name() == 'PENDING'} ? 'badge-warning' : (${booking.status.name() == 'CONFIRMED'} ? 'badge-info' : 'badge-danger'))"
+                                  th:text="${booking.status.name() == 'PAID'} ? 'Đã thanh toán' : (${booking.status.name() == 'PENDING'} ? 'Chờ thanh toán' : (${booking.status.name() == 'CONFIRMED'} ? 'Đã xác nhận' : 'Đã hủy'))">
+                            </span>
+                        </div>
+
+                        <div class="row align-items-center">
+                            <div class="col-md-2 col-3">
+                                <img th:src="${booking.showtime.movie.posterUrl != null ? booking.showtime.movie.posterUrl : '/images/no-poster.jpg'}" 
+                                     class="movie-poster" alt="Poster">
+                            </div>
+                            <div class="col-md-10 col-9">
+                                <div class="row">
+                                    <div class="col-md-3 col-6 mb-2">
+                                        <strong style="color: var(--citrine);">Phim</strong>
+                                        <p style="color: var(--gainsboro); margin: 5px 0 0 0;" th:text="${booking.showtime.movie.title}">Tên phim</p>
+                                    </div>
+                                    <div class="col-md-3 col-6 mb-2">
+                                        <strong style="color: var(--citrine);">Suất chiếu</strong>
+                                        <p style="color: var(--gainsboro); margin: 5px 0 0 0;" th:text="${#temporals.format(booking.showtime.startTime, 'dd/MM/yyyy HH:mm')}">01/01/2024 18:00</p>
+                                    </div>
+                                    <div class="col-md-2 col-4 mb-2">
+                                        <strong style="color: var(--citrine);">Phòng</strong>
+                                        <p style="color: var(--gainsboro); margin: 5px 0 0 0;" th:text="${booking.showtime.room.name}">Phòng 1</p>
+                                    </div>
+                                    <div class="col-md-2 col-4 mb-2">
+                                        <strong style="color: var(--citrine);">Ghế</strong>
+                                        <p style="margin: 5px 0 0 0;">
+                                            <span th:each="seat : ${booking.bookingSeats}" class="badge badge-outline" style="margin-right: 3px; margin-bottom: 3px;" th:text="${seat.seat.rowName + seat.seat.seatNumber}">A1</span>
+                                        </p>
+                                    </div>
+                                    <div class="col-md-2 col-4 mb-2">
+                                        <strong style="color: var(--citrine);">Tổng</strong>
+                                        <p style="color: var(--primary-color); font-weight: bold; margin: 5px 0 0 0;">
+                                            <span th:text="${#numbers.formatDecimal(totalPaymentMap != null and totalPaymentMap[booking.id] != null ? totalPaymentMap[booking.id] : booking.totalPrice, 1, 'COMMA', 0, 'POINT')}">0</span> VNĐ
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <!-- Action Buttons -->
+                                <div class="mt-3">
+                                    <!-- Chờ thanh toán -->
+                                    <a th:if="${booking.status.name() == 'PENDING'}" 
+                                       th:href="@{/user/payment/{id}(id=${booking.id})}" 
+                                       class="btn btn-primary btn-sm">
+                                        <ion-icon name="card"></ion-icon>
+                                        Thanh toán ngay
+                                    </a>
+
+                                    <!-- Đã thanh toán - chờ xác nhận -->
+                                    <a th:if="${booking.status.name() == 'PAID'}" 
+                                       class="btn btn-outline btn-sm" style="cursor: default;">
+                                        <ion-icon name="time"></ion-icon>
+                                        Chờ xác nhận
+                                    </a>
+
+                                    <!-- Đã xác nhận - hiển thị vé -->
+                                    <a th:if="${booking.status.name() == 'CONFIRMED'}" 
+                                       th:href="@{/user/ticket/{id}(id=${booking.id})}" 
+                                       class="btn btn-primary btn-sm">
+                                        <ion-icon name="qr-code"></ion-icon>
+                                        Xem vé
+                                    </a>
+
+                                    <!-- Đã hủy - chỉ xem chi tiết -->
+                                    <a th:if="${booking.status.name() == 'CANCELLED'}" 
+                                       th:href="@{/user/booking-detail/{id}(id=${booking.id})}" 
+                                       class="btn btn-outline btn-sm">
+                                        <ion-icon name="information-circle"></ion-icon>
+                                        Xem chi tiết
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-3" style="color: var(--gray-x); font-size: 12px;">
+                            <ion-icon name="calendar-outline"></ion-icon>
+                            Ngày đặt: <span th:text="${#temporals.format(booking.bookingTime, 'dd/MM/yyyy HH:mm')}">01/01/2024 10:00</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </article>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-brand-wrapper">
+                <a th:href="@{/}" class="logo">
+                    <ion-icon name="film"></ion-icon>
+                    <span>CINEMA</span>
+                </a>
+            </div>
+
+            <ul class="footer-list">
+                <li><a th:href="@{/}" class="footer-link">Trang Chủ</a></li>
+                <li><a th:href="@{/movies}" class="footer-link">Phim</a></li>
+            </ul>
+
+            <div class="divider"></div>
+
+            <div class="footer-bottom">
+                <p class="copyright">
+                    &copy; 2026 <a href="#">CINEMA</a>. All Rights Reserved
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- GO TO TOP -->
+    <a href="#top" class="go-top" data-go-top>
+        <ion-icon name="chevron-up"></ion-icon>
+    </a>
+
+    <th:block th:replace="~{fragments/user-layout :: commonScripts}"></th:block>
+    <script>
+        // Animate cards on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry, index) => {
+                if (entry.isIntersecting) {
+                    setTimeout(() => {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }, index * 100);
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.booking-card').forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(30px)';
+            observer.observe(card);
+        });
+    </script>
+</body>
+</html>

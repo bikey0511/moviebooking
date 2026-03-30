@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xác nhận thanh toán</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #141414; color: #ffffff; margin: 0; padding: 0; }
+        .container { max-width: 600px; margin: 0 auto; background: #1f1f1f; border-radius: 16px; overflow: hidden; }
+        .header { background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%); padding: 30px; text-align: center; }
+        .header h1 { margin: 0; font-size: 28px; color: #fff; }
+        .content { padding: 30px; }
+        .ticket-code { background: #fff; color: #28a745; padding: 15px; border-radius: 10px; text-align: center; font-size: 24px; font-weight: bold; margin: 20px 0; }
+        .info-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .info-row .label { color: rgba(255,255,255,0.6); }
+        .info-row .value { font-weight: 600; color: #ffffff !important; }
+        .seats { margin: 15px 0; }
+        .seat-tag { display: inline-block; background: #28a745; color: #fff; padding: 6px 14px; border-radius: 20px; margin: 3px; font-weight: 600; }
+        .total { font-size: 22px; font-weight: bold; color: #28a745; text-align: right; margin-top: 20px; }
+        .footer { background: #000; padding: 20px; text-align: center; color: rgba(255,255,255,0.5); font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>✅ THANH TOÁN THÀNH CÔNG</h1>
+            <p style="margin: 10px 0 0; opacity: 0.9;">Payment Confirmed</p>
+        </div>
+        
+        <div class="content">
+            <p>Xin chào <strong th:text="${user.username}">User</strong>,</p>
+            <p>Chúc mừng! Thanh toán của bạn đã được xác nhận thành công. Dưới đây là thông tin vé của bạn:</p>
+            
+            <div class="ticket-code" th:text="${booking.ticketCode}">CINEMA-123456</div>
+            
+            <div class="info-row">
+                <span class="label">Phim</span>
+                <span class="value" th:text="${movie.title}">Tên phim</span>
+            </div>
+            <div class="info-row">
+                <span class="label">Ngày chiếu</span>
+                <span class="value" th:text="${#temporals.format(showtime.startTime, 'dd/MM/yyyy')}">01/01/2024</span>
+            </div>
+            <div class="info-row">
+                <span class="label">Giờ chiếu</span>
+                <span class="value" th:text="${#temporals.format(showtime.startTime, 'HH:mm')}">18:00</span>
+            </div>
+            <div class="info-row">
+                <span class="label">Phòng</span>
+                <span class="value" th:text="${room.name}">Phòng 1</span>
+            </div>
+            
+            <div class="info-row">
+                <span class="label">Ghế ngồi</span>
+                <div class="seats">
+                    <span th:each="bs : ${seats}" class="seat-tag" th:text="${bs.seat.rowName + bs.seat.seatNumber}">A1</span>
+                </div>
+            </div>
+            
+            <div class="total">
+                Đã thanh toán: <span th:text="${#numbers.formatDecimal(totalPayment, 1, 'COMMA', 0, 'POINT')}">0</span> VNĐ
+            </div>
+            
+            <p style="margin-top: 25px; color: rgba(255,255,255,0.7);">
+                📧 Vé điện tử đã được gửi qua email này.<br>
+                Vui lòng đến rạp trước giờ chiếu <strong>15 phút</strong> và mang theo mã vé hoặc email xác nhận này.<br>
+                <br>
+                <em>Lưu ý: Vé của bạn đang chờ xác nhận từ admin. Sau khi được xác nhận, bạn sẽ nhận được thông báo qua email.</em>
+            </p>
+        </div>
+        
+        <div class="footer">
+            <p>Cinema - Trải nghiệm điện ảnh tuyệt vời</p>
+            <p style="margin: 0; font-size: 12px;">© 2024 Cinema. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>
