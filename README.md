@@ -1,4 +1,4 @@
-Hệ thống đặt vé xem phim
+                                            MovieBookingSystem - Hệ thống đặt vé xem phim    
 
 Ứng dụng web đặt vé rạp: xem phim, chọn suất và ghế, đặt đồ ăn, thanh toán (demo), quản trị phim/suất/phòng/voucher người dùng.
 
